@@ -1,0 +1,160 @@
+{
+  "name": "API Random Twitch Clip",
+  "description": "Utility that retrieves 100 Twitch clips and randomly picks one. Date filter included for the past 12 months (configurable). Add this to a play effect, chat message, etc.",
+  "version": 1,
+  "author": "arblane",
+  "components": {
+    "commands": [],
+    "counters": [],
+    "currencies": [],
+    "effectQueues": [],
+    "events": [],
+    "eventGroups": [],
+    "hotkeys": [],
+    "presetEffectLists": [
+      {
+        "name": "[API] Get User Clips",
+        "effects": {
+          "list": [
+            {
+              "id": "c8b084e0-2bc4-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 15,
+              "name": "CurrentDate",
+              "effectLabel": "Filter - CurrentDate",
+              "variableData": "$date[YYYY-MM-DD]"
+            },
+            {
+              "id": "d1c001f0-2bc4-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 15,
+              "name": "PreviousYear",
+              "effectLabel": "Filter - PreviousYear",
+              "variableData": "$date[YYYY-MM-DD, -12, months]"
+            },
+            {
+              "id": "d491f890-2bc2-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:http-request",
+              "active": true,
+              "headers": [],
+              "options": {
+                "useTwitchAuth": true
+              },
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$presetListArg[streamer]]&first=100&started_at=$customVariable[PreviousYear]T00:00:00Z&ended_at=$customVariable[CurrentDate]T00:00:00Z",
+              "method": "GET",
+              "effectLabel": "Get List of Twitch Clips (Date Filter)"
+            },
+            {
+              "id": "a13acaa0-2fa8-11ee-84d6-11f939a331b1",
+              "type": "firebot:http-request",
+              "active": false,
+              "headers": [],
+              "options": {
+                "useTwitchAuth": true
+              },
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$presetListArg[streamer]]&first=100",
+              "method": "GET",
+              "effectLabel": "Get List of Twitch Clips (No Date Filter)"
+            },
+            {
+              "id": "e3706db0-2bc2-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 90,
+              "variableData": "$effectOutput[httpResponse]",
+              "name": "twitchClipsJson",
+              "effectLabel": "twitchClipsJson"
+            },
+            {
+              "id": "aa7db940-2bc2-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 90,
+              "name": "twitchClipsData",
+              "variableData": "$arrayShuffle[$customVariable[twitchClipsJson,data]]",
+              "effectLabel": "twitchClipsData"
+            },
+            {
+              "id": "fa8986e0-2bc6-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 90,
+              "name": "ClipDate",
+              "effectLabel": "Formatted ClipDate",
+              "variableData": "$textSubstring[$customVariable[twitchClipsData,0.created_at], 0, 10]"
+            },
+            {
+              "id": "99b08e50-2bd4-11ee-95cd-a1b91b9c8cf9",
+              "type": "firebot:conditional-effects",
+              "active": true,
+              "ifs": [
+                {
+                  "conditionData": {
+                    "mode": "exclusive",
+                    "conditions": [
+                      {
+                        "type": "firebot:custom",
+                        "comparisonType": "is greater than or equal to",
+                        "value": null,
+                        "leftSideValue": "$textLength[$customVariable[twitchClipsData,0.title]]",
+                        "rightSideValue": "60"
+                      }
+                    ]
+                  },
+                  "effectData": {
+                    "list": [
+                      {
+                        "id": "aab89a30-2bd4-11ee-95cd-a1b91b9c8cf9",
+                        "type": "firebot:customvariable",
+                        "active": true,
+                        "ttl": 90,
+                        "name": "clipTitle",
+                        "variableData": "$trim[$textSubstring[$customVariable[twitchClipsData,0.title], 0, 60]...]",
+                        "effectLabel": "Formatted clipTitle"
+                      }
+                    ],
+                    "id": "99b3c2a0-2bd4-11ee-95cd-a1b91b9c8cf9"
+                  },
+                  "label": "Length of Title >= 60"
+                }
+              ],
+              "otherwiseEffectData": {
+                "list": [
+                  {
+                    "id": "e27825d0-2bd4-11ee-95cd-a1b91b9c8cf9",
+                    "type": "firebot:customvariable",
+                    "active": true,
+                    "ttl": 90,
+                    "variableData": "$trim[$customVariable[twitchClipsData,0.title]]",
+                    "name": "clipTitle",
+                    "effectLabel": "clipTitle"
+                  }
+                ],
+                "id": "99b28a20-2bd4-11ee-95cd-a1b91b9c8cf9"
+              }
+            }
+          ],
+          "id": "87fb57b0-2bc2-11ee-95cd-a1b91b9c8cf9"
+        },
+        "args": [
+          {
+            "name": "streamer"
+          }
+        ],
+        "sortTags": [
+          "75e6a3bc-a3d9-47a9-9136-63a957f2b106",
+          "4ec259a1-f622-4d17-881c-b3031774dbc4",
+          "bddb2559-cc79-474c-bb91-d22f2165b7d2"
+        ],
+        "id": "87fb30a0-2bc2-11ee-95cd-a1b91b9c8cf9"
+      }
+    ],
+    "timers": [],
+    "viewerRoles": [],
+    "quickActions": []
+  },
+  "requireCurrency": false,
+  "importQuestions": []
+}
