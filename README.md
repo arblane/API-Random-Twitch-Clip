@@ -3,6 +3,9 @@
 # Description
 Utility that retrieves 100 Twitch clips and randomly picks one. Date filter included for the past 12 months (configurable). Add this to a play effect, chat message, etc.
 
+# Requirement
+- Firebot 5.57.0-nightly-23.03.22 (JSON Stringify is bugged in 5.57.0)
+
 # Install
 + Download API Random Twitch Clip.firebotsetup
 + Import the downloaded file
