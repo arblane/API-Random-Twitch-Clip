@@ -35,6 +35,15 @@
               "variableData": "$date[YYYY-MM-DD, -12, months]"
             },
             {
+              "id": "ff8f3bf0-6ac6-11ee-a034-77f1f8367a32",
+              "type": "firebot:customvariable",
+              "active": true,
+              "ttl": 30,
+              "variableData": "$replace[$lowercase[$presetListArg[streamer]], \"@\", \"\"]",
+              "name": "this_user",
+              "effectLabel": "this_user"
+            },
+            {
               "id": "d491f890-2bc2-11ee-95cd-a1b91b9c8cf9",
               "type": "firebot:http-request",
               "active": true,
@@ -42,7 +51,7 @@
               "options": {
                 "useTwitchAuth": true
               },
-              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$presetListArg[streamer]]&first=100&started_at=$customVariable[PreviousYear]T00:00:00Z&ended_at=$customVariable[CurrentDate]T00:00:00Z",
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$customVariable[this_user]]&first=100&started_at=$customVariable[PreviousYear]T00:00:00Z&ended_at=$customVariable[CurrentDate]T00:00:00Z",
               "method": "GET",
               "effectLabel": "Get List of Twitch Clips (Date Filter)"
             },
@@ -54,7 +63,7 @@
               "options": {
                 "useTwitchAuth": true
               },
-              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$presetListArg[streamer]]&first=100",
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$customVariable[this_user]]&first=100",
               "method": "GET",
               "effectLabel": "Get List of Twitch Clips (No Date Filter)"
             },
@@ -110,9 +119,9 @@
                         "type": "firebot:customvariable",
                         "active": true,
                         "ttl": 90,
-                        "name": "clipTitle",
+                        "name": "ClipTitle",
                         "variableData": "$trim[$textSubstring[$customVariable[twitchClipsData,0.title], 0, 60]...]",
-                        "effectLabel": "Formatted clipTitle"
+                        "effectLabel": "Formatted ClipTitle"
                       }
                     ],
                     "id": "99b3c2a0-2bd4-11ee-95cd-a1b91b9c8cf9"
@@ -128,12 +137,24 @@
                     "active": true,
                     "ttl": 90,
                     "variableData": "$trim[$customVariable[twitchClipsData,0.title]]",
-                    "name": "clipTitle",
-                    "effectLabel": "clipTitle"
+                    "name": "ClipTitle",
+                    "effectLabel": "ClipTitle"
                   }
                 ],
                 "id": "99b28a20-2bd4-11ee-95cd-a1b91b9c8cf9"
-              }
+              },
+              "effectLabel": "Format Title"
+            },
+            {
+              "id": "6cc685b0-56f5-11ee-a5d5-2f1d6b6d5b1d",
+              "type": "firebot:filewriter",
+              "active": false,
+              "writeMode": "append",
+              "deleteLineMode": "lines",
+              "replaceLineMode": "lineNumbers",
+              "filepath": "E:\\Streaming\\data\\twitchClip.json",
+              "text": "$customVariable[twitchClipsData,0]",
+              "effectLabel": "debug"
             }
           ],
           "id": "87fb57b0-2bc2-11ee-95cd-a1b91b9c8cf9"
