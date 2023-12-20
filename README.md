@@ -4,7 +4,7 @@
 Utility that retrieves 100 Twitch clips and randomly picks one. Date filter included for the past 12 months (configurable). Add this to a play effect, chat message, etc.
 
 # Compatibility
-- Firebot 5.59.2+
+- Firebot 5.58.0+
 
 # Install
 + Download
