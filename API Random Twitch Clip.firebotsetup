@@ -1,7 +1,7 @@
 {
   "name": "API Random Twitch Clip",
   "description": "Utility that retrieves 100 Twitch clips and randomly picks one. Date filter included for the past 12 months (configurable). Add this to a play effect, chat message, etc.",
-  "version": 1.1,
+  "version": 1.2,
   "author": "arblane",
   "components": {
     "commands": [],
@@ -39,7 +39,7 @@
               "type": "firebot:customvariable",
               "active": true,
               "ttl": 30,
-              "variableData": "$replace[$lowercase[$presetListArg[streamer]], \"@\", \"\"]",
+              "variableData": "$replace[$lowercase[$#streamer], \"@\", \"\"]",
               "name": "this_user",
               "effectLabel": "this_user"
             },
@@ -51,7 +51,7 @@
               "options": {
                 "useTwitchAuth": true
               },
-              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$customVariable[this_user]]&first=100&started_at=$customVariable[PreviousYear]T00:00:00Z&ended_at=$customVariable[CurrentDate]T00:00:00Z",
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$$this_user]&first=100&started_at=$$PreviousYearT00:00:00Z&ended_at=$$CurrentDateT00:00:00Z",
               "method": "GET",
               "effectLabel": "Get List of Twitch Clips (Date Filter)"
             },
@@ -63,7 +63,7 @@
               "options": {
                 "useTwitchAuth": true
               },
-              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$customVariable[this_user]]&first=100",
+              "url": "https://api.twitch.tv/helix/clips?broadcaster_id=$userId[$$[this_user]]&first=100",
               "method": "GET",
               "effectLabel": "Get List of Twitch Clips (No Date Filter)"
             },
@@ -71,8 +71,8 @@
               "id": "e3706db0-2bc2-11ee-95cd-a1b91b9c8cf9",
               "type": "firebot:customvariable",
               "active": true,
-              "ttl": 90,
-              "variableData": "$effectOutput[httpResponse]",
+              "ttl": 30,
+              "variableData": "$&httpResponse",
               "name": "twitchClipsJson",
               "effectLabel": "twitchClipsJson"
             },
@@ -80,19 +80,19 @@
               "id": "aa7db940-2bc2-11ee-95cd-a1b91b9c8cf9",
               "type": "firebot:customvariable",
               "active": true,
-              "ttl": 90,
+              "ttl": 30,
               "name": "twitchClipsData",
-              "variableData": "$arrayShuffle[$customVariable[twitchClipsJson,data]]",
+              "variableData": "$arrayShuffle[$$twitchClipsJson[data]]",
               "effectLabel": "twitchClipsData"
             },
             {
               "id": "fa8986e0-2bc6-11ee-95cd-a1b91b9c8cf9",
               "type": "firebot:customvariable",
               "active": true,
-              "ttl": 90,
+              "ttl": 15,
               "name": "ClipDate",
               "effectLabel": "Formatted ClipDate",
-              "variableData": "$textSubstring[$customVariable[twitchClipsData,0.created_at], 0, 10]"
+              "variableData": "$textSubstring[$$twitchClipsData[0, created_at], 0, 10]"
             },
             {
               "id": "99b08e50-2bd4-11ee-95cd-a1b91b9c8cf9",
@@ -107,7 +107,7 @@
                         "type": "firebot:custom",
                         "comparisonType": "is greater than or equal to",
                         "value": null,
-                        "leftSideValue": "$textLength[$customVariable[twitchClipsData,0.title]]",
+                        "leftSideValue": "$textLength[$$twitchClipsData[0, title]]",
                         "rightSideValue": "60"
                       }
                     ]
@@ -120,7 +120,7 @@
                         "active": true,
                         "ttl": 90,
                         "name": "ClipTitle",
-                        "variableData": "$trim[$textSubstring[$customVariable[twitchClipsData,0.title], 0, 60]...]",
+                        "variableData": "$trim[$textSubstring[$$twitchClipsData[0, title], 0, 60]...]",
                         "effectLabel": "Formatted ClipTitle"
                       }
                     ],
@@ -136,7 +136,7 @@
                     "type": "firebot:customvariable",
                     "active": true,
                     "ttl": 90,
-                    "variableData": "$trim[$customVariable[twitchClipsData,0.title]]",
+                    "variableData": "$trim[$$twitchClipsData[0, title]]",
                     "name": "ClipTitle",
                     "effectLabel": "ClipTitle"
                   }
@@ -148,12 +148,12 @@
             {
               "id": "6cc685b0-56f5-11ee-a5d5-2f1d6b6d5b1d",
               "type": "firebot:filewriter",
-              "active": false,
+              "active": true,
               "writeMode": "append",
               "deleteLineMode": "lines",
               "replaceLineMode": "lineNumbers",
               "filepath": "E:\\Streaming\\data\\twitchClip.json",
-              "text": "$customVariable[twitchClipsData,0]",
+              "text": "$$twitchClipsData",
               "effectLabel": "debug"
             }
           ],
